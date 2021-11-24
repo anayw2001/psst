@@ -2,7 +2,7 @@ use druid::{Color, Env, FontDescriptor, FontFamily, FontWeight, Insets, Key, Siz
 
 pub use druid::theme::*;
 
-use crate::data::{AppState, Theme};
+use crate::data::{AppState, Theme, utils::check_system_theme};
 
 pub fn grid(m: f64) -> f64 {
     GRID * m
@@ -44,6 +44,7 @@ pub fn setup(env: &mut Env, state: &AppState) {
     match state.config.theme {
         Theme::Light => setup_light_theme(env),
         Theme::Dark => setup_dark_theme(env),
+        Theme::System => setup_system_theme(env),
     };
 
     env.set(WINDOW_BACKGROUND_COLOR, env.get(GREY_700));
@@ -57,17 +58,6 @@ pub fn setup(env: &mut Env, state: &AppState) {
     env.set(BACKGROUND_DARK, env.get(GREY_600));
     env.set(FOREGROUND_LIGHT, env.get(GREY_100));
     env.set(FOREGROUND_DARK, env.get(GREY_000));
-
-    match state.config.theme {
-        Theme::Light => {
-            env.set(BUTTON_LIGHT, env.get(GREY_700));
-            env.set(BUTTON_DARK, env.get(GREY_600));
-        }
-        Theme::Dark => {
-            env.set(BUTTON_LIGHT, env.get(GREY_600));
-            env.set(BUTTON_DARK, env.get(GREY_700));
-        }
-    }
 
     env.set(BORDER_LIGHT, env.get(GREY_400));
     env.set(BORDER_DARK, env.get(GREY_500));
@@ -143,6 +133,8 @@ fn setup_light_theme(env: &mut Env) {
     env.set(LINK_HOT_COLOR, Color::rgba(0.0, 0.0, 0.0, 0.06));
     env.set(LINK_ACTIVE_COLOR, Color::rgba(0.0, 0.0, 0.0, 0.04));
     env.set(LINK_COLD_COLOR, Color::rgba(0.0, 0.0, 0.0, 0.0));
+    env.set(BUTTON_LIGHT, env.get(GREY_700));
+    env.set(BUTTON_DARK, env.get(GREY_600));
 }
 
 fn setup_dark_theme(env: &mut Env) {
@@ -162,4 +154,14 @@ fn setup_dark_theme(env: &mut Env) {
     env.set(LINK_HOT_COLOR, Color::rgba(1.0, 1.0, 1.0, 0.05));
     env.set(LINK_ACTIVE_COLOR, Color::rgba(1.0, 1.0, 1.0, 0.025));
     env.set(LINK_COLD_COLOR, Color::rgba(1.0, 1.0, 1.0, 0.0));
+    env.set(BUTTON_LIGHT, env.get(GREY_600));
+    env.set(BUTTON_DARK, env.get(GREY_700));
+}
+
+fn setup_system_theme(env: &mut Env) {
+    match check_system_theme() {
+        Theme::Light => setup_light_theme(env),
+        Theme::Dark => setup_dark_theme(env),
+        _ => {}
+    }
 }

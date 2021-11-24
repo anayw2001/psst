@@ -10,7 +10,11 @@ use psst_core::{
 };
 use serde::{Deserialize, Serialize};
 
+use std::process::Command;
+
 use super::{Nav, Promise, QueueBehavior};
+
+use crate::data::utils;
 
 #[derive(Clone, Debug, Data, Lens)]
 pub struct Preferences {
@@ -191,10 +195,11 @@ impl Default for AudioQuality {
 pub enum Theme {
     Light,
     Dark,
+    System,
 }
 
 impl Default for Theme {
     fn default() -> Self {
-        Self::Light
+        return utils::check_system_theme();
     }
 }

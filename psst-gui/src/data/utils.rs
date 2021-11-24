@@ -7,7 +7,9 @@ use std::{
 
 use druid::{im::Vector, Data, Lens};
 use serde::{Deserialize, Deserializer, Serialize};
+use std::process::Command;
 use time::{Date, Month};
+use crate::data::Theme;
 
 #[derive(Clone, Data, Lens)]
 pub struct Cached<T: Data> {
@@ -170,4 +172,25 @@ where
 {
     let opt = Option::deserialize(deserializer)?;
     Ok(opt.unwrap_or_else(default_str))
+}
+
+pub(crate) fn check_system_theme() -> Theme {
+    if cfg!(target_os = "macos") {
+        let output = Command::new("/usr/bin/defaults")
+            .arg("read")
+            .arg("-g")
+            .arg("AppleInterfaceStyle")
+            .output()
+            .unwrap();
+        let output_str = std::str::from_utf8(&output.stdout).unwrap();
+        log::info!("current theme: {:?}", &output_str);
+        let equivalent = "Dark\n".to_string() == String::from(output_str);
+        if (&output.status).success() {
+            return match equivalent {
+                true => Theme::Dark,
+                false => Theme::Light,
+            }
+        }
+    }
+    return Theme::Light;
 }
